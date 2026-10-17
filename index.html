@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remix gcp5-moon-panel</title>
+    <meta name="description" content="Imported from GitHub: fededd22/gcp5-moon-panel" />
+    <meta property="og:title" content="Remix gcp5-moon-panel" />
+    <meta property="og:description" content="Imported from GitHub: fededd22/gcp5-moon-panel" />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        background: #0f1115; color: #e6e6e6; font-family: -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+        padding: 24px;
+      }
+      .card {
+        background: #171a21; border: 1px solid #262b36; border-radius: 14px;
+        padding: 28px; width: 100%; max-width: 520px; box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      }
+      h1 { font-size: 20px; margin: 0 0 6px; display: flex; align-items: center; gap: 8px; }
+      p.sub { color: #9aa3b2; font-size: 13px; margin: 0 0 20px; }
+      label { display: block; font-size: 13px; color: #b7bfcc; margin: 14px 0 6px; }
+      input {
+        width: 100%; padding: 11px 12px; border-radius: 8px; border: 1px solid #2c3140;
+        background: #0f1115; color: #e6e6e6; font-size: 14px;
+      }
+      input:focus { outline: none; border-color: #4c7dff; }
+      button {
+        width: 100%; margin-top: 18px; padding: 12px; border: none; border-radius: 8px;
+        background: #4c7dff; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+      }
+      button:disabled { opacity: .6; cursor: not-allowed; }
+      .btn-secondary {
+        background: #262b36; color: #e6e6e6; font-size: 13px;
+      }
+      .btn-secondary:hover { background: #323947; }
+      .msg { margin-top: 14px; font-size: 13px; min-height: 18px; }
+      .msg.err { color: #ff6b6b; }
+      .msg.ok { color: #52d17c; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+      .stat-box {
+        background: #0f1115; border: 1px solid #262b36; border-radius: 10px; padding: 14px;
+      }
+      .stat-label { font-size: 12px; color: #8e98a8; margin-bottom: 4px; }
+      .stat-val { font-size: 15px; font-weight: 600; color: #fff; word-break: break-all; }
+      .badge-ok { color: #52d17c; background: rgba(82,209,124,0.1); padding: 2px 8px; border-radius: 6px; font-size: 12px; }
+      .proto-list {
+        background: #0f1115; border: 1px solid #262b36; border-radius: 10px; padding: 14px; margin-bottom: 20px;
+      }
+      .proto-item {
+        display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #1d222d; font-size: 13px;
+      }
+      .proto-item:last-child { border-bottom: none; }
+      .proto-tag { background: #262b36; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #a4b1c7; }
+      .info-box {
+        background: rgba(76,125,255,0.08); border: 1px solid rgba(76,125,255,0.25); border-radius: 10px;
+        padding: 14px; font-size: 13px; color: #a5c2ff; line-height: 1.6;
+      }
+      pre {
+        background: #0f1115; border: 1px solid #262b36; border-radius: 8px; padding: 12px;
+        font-size: 12px; overflow-x: auto; margin-top: 14px; color: #b9e6c4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card" id="appCard">
+      <div id="loadingView">
+        <p class="sub">جاري فحص حالة الخادم...</p>
+      </div>
+
+      <!-- Dashboard View -->
+      <div id="dashboardView" style="display: none;">
+        <h1>🚀 Remix gcp5-moon-panel</h1>
+        <p class="sub">خادم V2Ray المدمج مع بوت الإدارة في تيليجرام</p>
+
+        <div class="grid">
+          <div class="stat-box">
+            <div class="stat-label">حالة الخادم</div>
+            <div class="stat-val"><span class="badge-ok">🟢 متصل ويعمل</span> (<span id="slotVal">Slot A</span>)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">بوت تيليجرام</div>
+            <div class="stat-val" id="botVal">🤖 مفعل</div>
+          </div>
+          <div class="stat-box" style="grid-column: span 2;">
+            <div class="stat-label">النطاق العام للاتصال</div>
+            <div class="stat-val" id="domainVal" style="font-family: monospace;">0.0.0.0</div>
+          </div>
+        </div>
+
+        <div class="proto-list">
+          <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #fff;">البروتوكولات النشطة:</div>
+          <div class="proto-item">
+            <span>VLESS WebSocket</span>
+            <span class="proto-tag">/by_moon</span>
+          </div>
+          <div class="proto-item">
+            <span>VMess WebSocket</span>
+            <span class="proto-tag">/by_moon_vmess</span>
+          </div>
+          <div class="proto-item">
+            <span>Trojan WebSocket</span>
+            <span class="proto-tag">/by_moon_trojan</span>
+          </div>
+          <div class="proto-item">
+            <span>Shadowsocks WebSocket</span>
+            <span class="proto-tag">/ss</span>
+          </div>
+        </div>
+
+        <div class="info-box">
+          💬 <b>طريقة الإدارة:</b><br>
+          تتم إدارة المشتركين وتوليد روابط الاتصال بالكامل عبر بوت تيليجرام المرتبط. افتح المحادثة مع البوت واكتب <code>/start</code> للوصول إلى لوحة التحكم الفورية.
+        </div>
+
+        <button class="btn-secondary" onclick="loadStatus()">🔄 تحديث البيانات</button>
+      </div>
+
+      <!-- Setup Wizard: Step 1 Password -->
+      <div id="setupStep1" style="display: none;">
+        <h1>🔒 لوحة إعداد بوت مراد</h1>
+        <p class="sub">أدخل كلمة السر للمتابعة</p>
+        <label for="password">كلمة السر</label>
+        <input id="password" type="password" autocomplete="off" />
+        <button id="btnVerify">دخول</button>
+        <div id="msg1" class="msg"></div>
+      </div>
+
+      <!-- Setup Wizard: Step 2 Credentials -->
+      <div id="setupStep2" style="display: none;">
+        <h1>🤖 بيانات بوت مراد</h1>
+        <p class="sub">تُحفظ هذه البيانات مرة واحدة فقط ولا يمكن تغييرها لاحقاً</p>
+        <label for="botId">آيدي بوت تلقرام</label>
+        <input id="botId" type="text" autocomplete="off" placeholder="مثال: 123456789" />
+        <label for="botToken">توكن بوت تلقرام</label>
+        <input id="botToken" type="text" autocomplete="off" placeholder="مثال: 123456789:AA..." />
+        <button id="btnSave">حفظ وتفعيل</button>
+        <div id="msg2" class="msg"></div>
+      </div>
+
+      <!-- Setup Wizard: Success -->
+      <div id="setupSuccess" style="display: none;">
+        <h1>✅ تم تفعيل إعداد البوت بنجاح</h1>
+        <pre id="resultJson"></pre>
+        <button style="background:#52d17c; margin-top: 14px;" onclick="loadStatus()">الانتقال إلى لوحة معلومات السيرفر 🚀</button>
+      </div>
+    </div>
+
+    <script>
+      let verifiedPassword = "";
+
+      async function loadStatus() {
+        document.getElementById("loadingView").style.display = "block";
+        document.getElementById("dashboardView").style.display = "none";
+        document.getElementById("setupStep1").style.display = "none";
+        document.getElementById("setupStep2").style.display = "none";
+        document.getElementById("setupSuccess").style.display = "none";
+
+        try {
+          const res = await fetch("/status");
+          if (res.ok) {
+            const data = await res.json();
+            document.getElementById("loadingView").style.display = "none";
+            if (data.botConfigured) {
+              document.getElementById("dashboardView").style.display = "block";
+              document.getElementById("slotVal").textContent = "Slot " + (data.activeSlot || "A");
+              document.getElementById("domainVal").textContent = data.domain || "0.0.0.0";
+              document.getElementById("botVal").textContent = data.botId ? "🤖 مفعل (" + data.botId + ")" : "🤖 مفعل";
+            } else {
+              document.getElementById("setupStep1").style.display = "block";
+            }
+          } else {
+            document.getElementById("loadingView").style.display = "none";
+            document.getElementById("setupStep1").style.display = "block";
+          }
+        } catch {
+          document.getElementById("loadingView").style.display = "none";
+          document.getElementById("setupStep1").style.display = "block";
+        }
+      }
+
+      document.getElementById("btnVerify").addEventListener("click", async () => {
+        const password = document.getElementById("password").value;
+        const msg = document.getElementById("msg1");
+        msg.textContent = ""; msg.className = "msg";
+        if (!password) { msg.textContent = "أدخل كلمة السر."; msg.className = "msg err"; return; }
+        try {
+          const res = await fetch("/murad-setup/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            verifiedPassword = password;
+            document.getElementById("setupStep1").style.display = "none";
+            document.getElementById("setupStep2").style.display = "block";
+          } else {
+            msg.textContent = data.error || "كلمة السر غير صحيحة.";
+            msg.className = "msg err";
+          }
+        } catch (e) {
+          msg.textContent = "تعذر الاتصال بالسيرفر.";
+          msg.className = "msg err";
+        }
+      });
+
+      document.getElementById("btnSave").addEventListener("click", async () => {
+        const botId = document.getElementById("botId").value.trim();
+        const botToken = document.getElementById("botToken").value.trim();
+        const msg = document.getElementById("msg2");
+        msg.textContent = ""; msg.className = "msg";
+        if (!botId || !botToken) { msg.textContent = "أدخل الآيدي والتوكن."; msg.className = "msg err"; return; }
+        const btn = document.getElementById("btnSave");
+        btn.disabled = true;
+        try {
+          const res = await fetch("/murad-setup/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password: verifiedPassword, botId, botToken })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            document.getElementById("setupStep2").style.display = "none";
+            document.getElementById("setupSuccess").style.display = "block";
+            document.getElementById("resultJson").textContent = JSON.stringify(data.status, null, 2);
+          } else {
+            msg.textContent = data.error || "تعذر الحفظ.";
+            msg.className = "msg err";
+            btn.disabled = false;
+          }
+        } catch (e) {
+          msg.textContent = "تعذر الاتصال بالسيرفر.";
+          msg.className = "msg err";
+          btn.disabled = false;
+        }
+      });
+
+      loadStatus();
+    </script>
+  </body>
+</html>
